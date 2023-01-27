@@ -11,3 +11,34 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* centrar modal  */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 62%;
+  background-color:    #F8F9F9  ;
+}
+
+.centrar{
+  margin: auto;
+  width: 80%;
+  
+}
+img{
+  width: 50px;
+  height: 50px;
+}
+.img-modal{
+  width: 70%;
+  height: 100%;
+  margin: auto;
+  
+}
+
+
+.buttonPage{
+  width: 100%;
+  margin: auto;
+  
+}
