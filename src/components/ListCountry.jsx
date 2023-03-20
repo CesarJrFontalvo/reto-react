@@ -1,12 +1,24 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { oneRegisterUrl, url } from '../helpers/url';
+import { oneRegisterUrl } from '../helpers/url';
 import { useForm } from '../hooks/UseForm';
 import { Button, Table, Modal, Container, Navbar, Form, FormControl } from 'react-bootstrap';
 import swal from 'sweetalert2';
+import { getCountries } from '../helpers/getCountries';
+import TableRegisters from './TableRegisters';
+import AddCategory from './AddCategory';
 
 
 const ListCountry = () => {
+    const [categories, setCategories] = useState(['']);
+
+    const onAddCategory = (newCategory) => {
+        if (categories.includes(newCategory)) return;
+
+        setCategories([newCategory, ...categories])
+    }
+    console.log(categories)
+
+    // ----------------------------------------------------
     // BUSCARDOR
     const [filtro, setFiltro] = useState([]);
     const [formValues, handleInputChange] = useForm({
@@ -17,7 +29,7 @@ const ListCountry = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        Buscador(searchText);
+        Buscador(categories);
     }
 
 
@@ -42,14 +54,10 @@ const ListCountry = () => {
 
     // TRAER DATOS DE LA API------------------------------------
     const [registros, setRegistro] = useState([]);
-    const getData = () => {
-        axios.get(url)
-            .then(response => {
-                setRegistro(response.data)
-            })
-            .catch(error => {
-                console.log(error);
-            })
+
+    const getData = async () => {
+        const resp = await getCountries()
+        setRegistro(resp)
     }
     // MODAL ---------------------------------------------------------
     const [show, setShow] = useState(false);
@@ -81,7 +89,7 @@ const ListCountry = () => {
     useEffect(() => {
         if (searchText === '') {
             getData();
-
+        
         } else {
             Buscador(searchText);
         }
@@ -105,6 +113,11 @@ const ListCountry = () => {
                                 name="searchText"
                                 value={searchText}
                                 onChange={handleInputChange}
+                            />
+
+                            <AddCategory
+                                // onNewCategory={(value) => onAddCategory(value)}
+                                onNewCategory={onAddCategory}
                             />
 
                             <Button className="btn btn-danger me-2 d-flex buttonPage "
@@ -133,37 +146,8 @@ const ListCountry = () => {
             {
                 (!searchText) ?
                     (
-                        <Table className='tabla' bordered hover size="sm">
-                            <thead>
-                                <tr>
-                                    <th><h5>Bandera</h5></th>
-                                    <th><h5>País</h5></th>
-                                    <th><h5>Continente</h5></th>
-                                    <th><h5>Detalles</h5></th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {pageRegistro().map((item, index) => (
-                                    <tr key={index} className='m-3'>
-                                        <td> <img src={item.flag} alt="Bandera" width="100" height="100" /></td>
-                                        <td> <h5>{item.name}</h5></td>
-                                        <td> <h5>{item.region}</h5></td>
-                                        <td>
-                                            <Button
-                                                variant="info"
-                                                onClick={() => handleShow(item.name)}
-                                            >Ver deatalles
-                                            </Button>{' '}
-                                        </td>
-                                    </tr>
-                                ))}
-
-                            </tbody>
-                        </Table>
-
+                        <TableRegisters type={pageRegistro} />
                     ) :
-
                     <Table className='tabla' bordered hover size="sm">
                         <thead>
                             <tr>
