@@ -11,7 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.fondo {
+  background: linear-gradient( transparent, 5%, #9ca4a9),
+  url("../public/fondoPaises.png") repeat ;
+  
 
+}
 /* centrar modal  */
 .modal-content {
   margin: auto;

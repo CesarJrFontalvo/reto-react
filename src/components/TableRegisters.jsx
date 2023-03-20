@@ -1,11 +1,12 @@
 import React from 'react'
-import { Button, Table } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
+import DetailModal from './DetailModal'
 
 const TableRegisters = ({ type }) => {
 
     return (
-        <div>
-            <Table className='tabla' bordered hover size="sm">
+        <div className=' p-5'>
+            <Table className='tabla bg-secondary ' bordered hover  size="sm">
                 <thead>
                     <tr>
                         <th><h5>Bandera</h5></th>
@@ -16,17 +17,14 @@ const TableRegisters = ({ type }) => {
                 </thead>
 
                 <tbody>
-                    {type().map((item, index) => (
+                    {type().map((pais, index) => (
                         <tr key={index} className='m-3'>
-                            <td> <img src={item.flag} alt="Bandera" width="100" height="100" /></td>
-                            <td> <h5>{item.name}</h5></td>
-                            <td> <h5>{item.region}</h5></td>
+                            <td> <img src={pais.flag} alt="Bandera" width="100" height="100" /></td>
+                            <td> <h5>{pais.name}</h5></td>
+                            <td> <h5>{pais.region}</h5></td>
                             <td>
-                                <Button
-                                    variant="info"
-                                // onClick={() => handleShow(item.name)}
-                                >Ver deatalles
-                                </Button>{' '}
+                            <DetailModal pais={pais} />
+                            
                             </td>
                         </tr>
                     ))}

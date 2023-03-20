@@ -1,56 +1,27 @@
 import React, { useEffect, useState } from 'react'
-import { oneRegisterUrl } from '../helpers/url';
-import { useForm } from '../hooks/UseForm';
-import { Button, Table, Modal, Container, Navbar, Form, FormControl } from 'react-bootstrap';
-import swal from 'sweetalert2';
 import { getCountries } from '../helpers/getCountries';
 import TableRegisters from './TableRegisters';
 import AddCategory from './AddCategory';
+import { Buscador } from '../helpers/buscador';
+import Pagination from './Pagination';
+import TableFilter from './TableFilter';
 
 
 const ListCountry = () => {
-    const [categories, setCategories] = useState(['']);
+    // BUSCARDOR
+    const [categories, setCategories] = useState([]);
 
     const onAddCategory = (newCategory) => {
         if (categories.includes(newCategory)) return;
 
-        setCategories([newCategory, ...categories])
+        setCategories([newCategory])
     }
-    console.log(categories)
 
-    // ----------------------------------------------------
-    // BUSCARDOR
     const [filtro, setFiltro] = useState([]);
-    const [formValues, handleInputChange] = useForm({
-        searchText: ''
-
-    });
-    const { searchText } = formValues;
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        Buscador(categories);
+    const searchByFilter = async () => {
+        const resp = await Buscador(categories);
+        setFiltro(resp);
     }
-
-
-    const Buscador = async (searchText) => {
-        const input = searchText;
-        let filtrar = oneRegisterUrl + input;
-
-        try {
-            const resp = await fetch(filtrar);
-            const data = await resp.json();
-            setFiltro(data);
-        } catch (error) {
-            swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Something went wrong!',
-                footer: '<a href="">Why do I have this issue?</a>'
-            })
-        }
-
-    };
 
     // TRAER DATOS DE LA API------------------------------------
     const [registros, setRegistro] = useState([]);
@@ -59,17 +30,7 @@ const ListCountry = () => {
         const resp = await getCountries()
         setRegistro(resp)
     }
-    // MODAL ---------------------------------------------------------
-    const [show, setShow] = useState(false);
-    const [modalList, setModalList] = useState({})
 
-    const handleClose = () => setShow(false);
-
-    const handleShow = (name) => {
-        setShow(true);
-        setModalList(registros.find(registro => registro.name === name))
-        // console.log(registros.find(registro => registro.name === name))
-    }
 
     // PAGINACION---------------------------------------------
     const [currentPage, setCurrentPage] = useState(0)
@@ -77,132 +38,37 @@ const ListCountry = () => {
         return registros.slice(currentPage, currentPage + 20);
     };
 
-    const nextPage = () => {
-        setCurrentPage(currentPage + 20);
-    };
-
-    const prevPage = () => {
-        if (currentPage > 0)
-            setCurrentPage(currentPage - 20);
-    };
-
     useEffect(() => {
-        if (searchText === '') {
+
+        if (categories.length === 0) {
             getData();
-        
+
         } else {
-            Buscador(searchText);
+            searchByFilter(categories);
         }
-    }, [searchText])
+    }, [categories])
 
-    // console.log(registros)
     return (
-        <div className='container centrar'>
-            <Navbar bg="light" expand="lg" className="sticky-top">
-                <Container fluid>
-                    <Navbar.Brand href="#">Buscar por país</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="navbarScroll" />
-                    <Navbar.Collapse id="navbarScroll">
+        <div className='container centrar '>
 
-                        <Form className="d-flex " onSubmit={handleSearch}>
-                            <FormControl
-                                type="search"
-                                placeholder="Buscar"
-                                className="me-2"
-                                aria-label="Search"
-                                name="searchText"
-                                value={searchText}
-                                onChange={handleInputChange}
-                            />
+            <div className="sticky-top">
+                <AddCategory
+                    // onNewCategory={(value) => onAddCategory(value)}
+                    onNewCategory={onAddCategory}
 
-                            <AddCategory
-                                // onNewCategory={(value) => onAddCategory(value)}
-                                onNewCategory={onAddCategory}
-                            />
+                />
+                <Pagination setCurrentPage={setCurrentPage} currentPage={currentPage} />
+            </div>
 
-                            <Button className="btn btn-danger me-2 d-flex buttonPage "
-                                onClick={prevPage}
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
-                                </svg>&nbsp; Página anterior
-                            </Button>
-
-                            <Button className="btb btn-primary buttonPage"
-                                onClick={nextPage}
-                            >
-                                Página siguiente &nbsp;
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                </svg>
-                            </Button>
-                        </Form>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-
-            <h1 className="mt-4">Lista de países</h1>
 
             {
-                (!searchText) ?
-                    (
-                        <TableRegisters type={pageRegistro} />
-                    ) :
-                    <Table className='tabla' bordered hover size="sm">
-                        <thead>
-                            <tr>
-                                <th><h5>Bandera</h5></th>
-                                <th><h5>País</h5></th>
-                                <th><h5>Continente</h5></th>
-                                <th><h5>Detalles</h5></th>
-                            </tr>
-                        </thead>
+                (categories.length < 1) ?
 
-                        <tbody>
-                            {filtro.map((item, index) => (
-                                <tr key={index} className='m-3'>
-                                    <td> <img src={item.flag} alt="Bandera" width="100" height="100" /></td>
-                                    <td> <h5>{item.name}</h5></td>
-                                    <td> <h5>{item.region}</h5></td>
-                                    <td>
-                                        <Button
-                                            variant="info"
-                                            onClick={() => handleShow(item.name)}
-                                        >Ver deatalles
-                                        </Button>{' '}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <TableRegisters type={pageRegistro} />
+                    :
+                    <TableFilter filtro={filtro} />
             }
 
-            {/* Modal detalles de los países*/}
-
-            <Container className=" container centrar" >
-                <Modal show={show}
-                    size="lg"
-                    scrollable
-                    className="container-modal"
-                    onHide={handleClose} >
-                    <Modal.Header closeButton>
-                    </Modal.Header>
-                    <Modal.Body className="modal-content ">
-                        <img src={modalList.flag} alt="" className="img-modal" />
-                        <div className="data-modal">
-                            <h1>{modalList.name}</h1>
-                            <h3>Capital: {modalList.capital}</h3>
-                            <h3>Población: {modalList.population}</h3>
-                            <h3>Continente: {modalList.region}</h3>
-                            <h3>Área: {modalList.area}</h3>
-
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="success" onClick={handleClose} >Cerrar</Button>{' '}
-                    </Modal.Footer>
-                </Modal>
-            </Container>
 
         </div>
     )

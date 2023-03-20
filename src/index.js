@@ -7,7 +7,10 @@ import ListCountry from './components/ListCountry';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ListCountry />
+    <div className='fondo'>
+      <ListCountry />
+    </div>
+
   </React.StrictMode>
 );
 
